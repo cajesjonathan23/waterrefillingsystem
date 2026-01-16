@@ -10,22 +10,18 @@ app.use(express.json());
 
 // 2. Database Connection (Back to Localhost)
 const db = mysql.createConnection({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    port: process.env.DB_PORT,
-    ssl: {
-        rejectUnauthorized: false
-    }
+    host: 'localhost',
+    user: 'root',      // Your local MySQL username
+    password: '',      // Your local MySQL password
+    database: 'water_station' // Your local database name
 });
 
-db.connect((err) => {
-    if (err) {
-        console.error('Error connecting to Aiven MySQL:', err.message);
-        return;
+db.connect(err => {
+    if (err) { 
+        console.error('❌ Local DB Connection Error:', err.message); 
+        return; 
     }
-    console.log('Successfully connected to Aiven Cloud Database!');
+    console.log('✅ Connected to Local MySQL!');
 });
 
 // 3. Routes
