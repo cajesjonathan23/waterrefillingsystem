@@ -10,13 +10,13 @@ app.use(express.json());
 
 // 2. Database Connection (Back to Localhost)
 const db = mysql.createConnection({
-    host: 'aquaflow-db-mysql-jonathan17cajes-e908.j.aivencloud.com',
-    user: 'avnadmin',
-    password: 'AVNS_r2CB5cYQLuWyWr8iJPx',
-    database: 'defaultdb',
-    port: 24733,
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    port: process.env.DB_PORT,
     ssl: {
-        rejectUnauthorized: false // This is mandatory for Aiven
+        rejectUnauthorized: false
     }
 });
 
