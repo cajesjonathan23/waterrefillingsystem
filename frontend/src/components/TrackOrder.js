@@ -20,7 +20,7 @@ const TrackOrder = () => {
   }, [location]);
 
   const fetchOrder = async (searchId) => {
-    const res = await fetch(`http://localhost:5000/api/orders/${searchId}`);
+    const res = await fetch(`https://waterrefillingsystem.onrender.com/api/orders/${searchId}`);
     if (res.ok) setOrder(await res.json());
   };
 

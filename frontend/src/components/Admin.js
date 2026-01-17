@@ -11,7 +11,7 @@ const Admin = () => {
 
   const fetchOrders = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/orders');
+      const res = await fetch('https://waterrefillingsystem.onrender.com/api/orders');
       if (res.ok) {
         setOrders(await res.json());
       }
@@ -29,7 +29,7 @@ const Admin = () => {
 
   const updateStatus = async (id, status) => {
     try {
-      await fetch(`http://localhost:5000/api/orders/${id}`, {
+      await fetch(`https://waterrefillingsystem.onrender.com/api/orders/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status })
@@ -43,7 +43,7 @@ const Admin = () => {
   const deleteOrder = async (id) => {
     if (window.confirm("Delete this order permanently?")) {
       try {
-        await fetch(`http://localhost:5000/api/orders/${id}`, { method: 'DELETE' });
+        await fetch(`https://waterrefillingsystem.onrender.com/api/orders/${id}`, { method: 'DELETE' });
         fetchOrders();
       } catch (error) {
         alert("Error deleting order.");
