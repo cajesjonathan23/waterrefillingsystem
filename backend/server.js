@@ -10,18 +10,22 @@ app.use(express.json());
 
 // 2. Database Connection (Back to Localhost)
 const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',      // Your local MySQL username
-    password: '',      // Your local MySQL password
-    database: 'water_station' // Your local database name
+    host: 'aquaflow-db-mysql-jonathan17cajes-e908.j.aivencloud.com',
+    user: 'avnadmin',
+    password: 'AVNS_r2CB5cYQLuWyWr8iJPx',
+    database: 'defaultdb',
+    port: 24733,
+    ssl: {
+        rejectUnauthorized: false // This is mandatory for Aiven
+    }
 });
 
-db.connect(err => {
-    if (err) { 
-        console.error('❌ Local DB Connection Error:', err.message); 
-        return; 
+db.connect((err) => {
+    if (err) {
+        console.error('Error connecting to Aiven MySQL:', err.message);
+        return;
     }
-    console.log('✅ Connected to Local MySQL!');
+    console.log('Successfully connected to Aiven Cloud Database!');
 });
 
 // 3. Routes
