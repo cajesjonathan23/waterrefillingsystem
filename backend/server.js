@@ -8,6 +8,11 @@ const app = express();
 app.use(cors()); 
 app.use(express.json());
 
+// 2. THE HEALTH CHECK (Put it right here!)
+app.get("/", (req, res) => {
+  res.status(200).send("Server is Active");
+});
+
 // 2. Database Connection (Back to Localhost)
 const db = mysql.createConnection({
     host: 'aquaflow-db-mysql-jonathan17cajes-e908.j.aivencloud.com',
