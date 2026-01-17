@@ -57,7 +57,9 @@ app.patch('/api/orders/:id', (req, res) => {
     db.query("UPDATE orders SET status = ? WHERE id = ?", [req.body.status, req.params.id], (err) => res.send("Updated"));
 });
 
-// 4. Server Start (Locked to Port 5000)
-app.listen(5000, () => {
-    console.log("🚀 Local Server running on https://waterrefillingsystem.onrender.com");
+// 4. Server Start (Dynamic Port for Render)
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 Server is live on port ${PORT}`);
 });
