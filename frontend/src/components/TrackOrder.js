@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Form, Button, Card, ListGroup, Modal } from 'react-bootstrap';
+import { Container, Form, Button, Card, ListGroup, Modal, Spinner } from 'react-bootstrap';
 import { useLocation } from 'react-router-dom';
 import Header from './Header';
 import html2canvas from 'html2canvas';
@@ -9,6 +9,7 @@ const TrackOrder = () => {
   const [order, setOrder] = useState(null);
   const [history, setHistory] = useState([]);
   const [showReceipt, setShowReceipt] = useState(false);
+  const [loading, setLoading] = useState(false); // NEW: Loading state
   const location = useLocation();
 
   useEffect(() => {
@@ -16,12 +17,31 @@ const TrackOrder = () => {
     setHistory(saved);
     const params = new URLSearchParams(location.search);
     const urlId = params.get('id');
-    if (urlId) { setId(urlId); fetchOrder(urlId); }
+    if (urlId) { 
+      setId(urlId); 
+      fetchOrder(urlId); 
+    }
   }, [location]);
 
   const fetchOrder = async (searchId) => {
-    const res = await fetch(`https://waterrefillingsystem.onrender.com/api/orders/${searchId}`);
-    if (res.ok) setOrder(await res.json());
+    if (!searchId) return;
+    
+    setLoading(true); // Start spinner
+    try {
+      const res = await fetch(`https://waterrefillingsystem.onrender.com/api/orders/${searchId}`);
+      if (res.ok) {
+        const data = await res.json();
+        setOrder(data);
+      } else {
+        setOrder(null);
+        alert("Order ID not found. Please check the ID and try again.");
+      }
+    } catch (error) {
+      console.error("Fetch error:", error);
+      alert("Server is waking up or connection lost. Please try again in a few seconds.");
+    } finally {
+      setLoading(false); // Stop spinner
+    }
   };
 
   const downloadReceipt = () => {
@@ -51,7 +71,6 @@ const TrackOrder = () => {
                     key={h.id} 
                     action 
                     onClick={() => { setId(h.id); fetchOrder(h.id); }} 
-                    // CUSTOM STYLE: Replaces blue with Dark Grey when active
                     style={id == h.id ? { backgroundColor: '#343a40', color: 'white', borderColor: '#343a40' } : {}}
                     className="py-3 border-bottom"
                   >
@@ -80,32 +99,55 @@ const TrackOrder = () => {
               <h4 className="fw-bold mb-4 d-flex align-items-center">
                 <i className="bi bi-geo-alt-fill text-primary me-2"></i> Tracking Status
               </h4>
+              
               <Form onSubmit={e => { e.preventDefault(); fetchOrder(id); }} className="d-flex mb-4">
                 <Form.Control 
                   type="text" 
-                  placeholder="Enter Order ID"
+                  placeholder="Select an order to track"
                   value={id} 
-                  onChange={e => setId(e.target.value)} 
-                  className="me-2 rounded-pill px-3" 
+                  readOnly // NEW: User cannot type, must click from sidebar
+                  className="me-2 rounded-pill px-3 bg-white" 
                 />
-                <Button type="submit" className="rounded-pill px-4 fw-bold">
-                  <i className="bi bi-search me-1"></i> Track
+                <Button 
+                  type="submit" 
+                  className="rounded-pill px-4 fw-bold d-flex align-items-center" 
+                  disabled={loading || !id}
+                >
+                  {loading ? (
+                    <>
+                      <Spinner animation="border" size="sm" className="me-2" />
+                      Loading...
+                    </>
+                  ) : (
+                    <>
+                      <i className="bi bi-search me-1"></i> Track
+                    </>
+                  )}
                 </Button>
               </Form>
 
-              {order ? (
+              <hr className="opacity-10 mb-4" />
+
+              {loading ? (
+                /* NEW: Full view Loading State */
+                <div className="text-center py-5">
+                  <Spinner animation="grow" variant="primary" className="mb-3" />
+                  <h5 className="text-muted">Fetching Order Details...</h5>
+                  <small className="text-secondary">This may take a moment if the server is starting up.</small>
+                </div>
+              ) : order ? (
+                /* Order Display */
                 <div className="text-center py-4 animate__animated animate__fadeIn">
-                  {/* Icon changes based on status */}
                   <div className="mb-3">
                      {order.status === 'Pending' && <i className="bi bi-hourglass-split display-1 text-warning"></i>}
-                     {order.status === 'Process' && <i className="bi bi-gear-wide-connected display-1 text-info rotate-icon"></i>}
+                     {order.status === 'Process' && <i className="bi bi-gear-wide-connected display-1 text-info"></i>}
                      {order.status === 'On the Way' && <i className="bi bi-bicycle display-1 text-primary"></i>}
                      {order.status === 'Delivered' && <i className="bi bi-check-all display-1 text-success"></i>}
                      {order.status === 'Cancelled' && <i className="bi bi-x-circle display-1 text-danger"></i>}
                   </div>
 
                   <h2 className="text-dark fw-bold text-uppercase mb-1">{order.status}</h2>
-                  <p className="text-muted mb-4">Thank you for trusting!</p>
+                  <p className="text-muted mb-4">Thank you for trusting AquaFlow!</p>
 
                   <div className="progress mt-3 mb-4" style={{ height: '12px', borderRadius: '10px' }}>
                     <div className="progress-bar progress-bar-striped progress-bar-animated bg-success" 
@@ -117,9 +159,10 @@ const TrackOrder = () => {
                   </Button>
                 </div>
               ) : (
+                /* Empty State */
                 <div className="text-center py-5 text-muted">
                    <i className="bi bi-search display-4 d-block mb-3 opacity-25"></i>
-                   Enter an Order ID above to see the delivery status.
+                   Click on a <strong>Recent Order</strong> to see its live delivery status.
                 </div>
               )}
             </Card>
@@ -136,11 +179,11 @@ const TrackOrder = () => {
                <h4 className="fw-bold text-primary mb-0">AQUAFLOW STATION</h4>
                <small className="text-muted">Quality Purified Water</small>
             </div>
-            <hr className="dashed"/>
+            <hr style={{ borderStyle: 'dashed' }}/>
             <div className="d-flex justify-content-between mb-2"><span>Order ID:</span><strong>#{order?.id}</strong></div>
             <div className="d-flex justify-content-between mb-2"><span>Date:</span><strong>{order?.order_date}</strong></div>
             <div className="d-flex justify-content-between mb-2"><span>Customer:</span><strong>{order?.customer_name}</strong></div>
-            <hr className="dashed"/>
+            <hr style={{ borderStyle: 'dashed' }}/>
             <div className="d-flex justify-content-between mb-2"><span>Items:</span><strong>{order?.product_name} (x{order?.quantity})</strong></div>
             <div className="d-flex justify-content-between mb-2"><span>Payment:</span><strong>{order?.payment_method}</strong></div>
             <div className="bg-light p-3 mt-3 rounded text-center">
