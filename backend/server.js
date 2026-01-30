@@ -62,6 +62,17 @@ app.patch('/api/orders/:id', (req, res) => {
     db.query("UPDATE orders SET status = ? WHERE id = ?", [req.body.status, req.params.id], (err) => res.send("Updated"));
 });
 
+// Delete Order
+app.delete('/api/orders/:id', (req, res) => {
+    const sql = "DELETE FROM orders WHERE id = ?";
+    db.query(sql, [req.params.id], (err, result) => {
+        if (err) {
+            console.error("Error deleting from database:", err);
+            return res.status(500).send(err);
+        }
+        res.status(200).send("Order deleted successfully");
+    });
+});
 // 4. Server Start (Dynamic Port for Render)
 const PORT = process.env.PORT || 5000;
 
